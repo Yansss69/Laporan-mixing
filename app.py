@@ -1,25 +1,38 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
+import requests
+from streamlit_lottie import st_lottie
 
-# Konfigurasi halaman yang simpel dan elegan
-st.set_page_config(page_title="Line Sachet Monitor", page_icon="🏭", layout="centered")
+# 1. Konfigurasi Animasi
+def load_lottieurl(url: str):
+    r = requests.get(url)
+    if r.status_code != 200: return None
+    return r.json()
 
-st.title("🚀 Line Mixing Sachet")
-st.subheader("Production Data Entry")
+# Link animasi roket
+lottie_rocket = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_tTAb2t.json")
 
-# Layout Input dengan kolom agar lebih rapi di layar HP
+# 2. Konfigurasi Halaman
+st.set_page_config(page_title="Line Sachet Monitor", page_icon="🚀", layout="centered")
+
+# 3. Tampilan Header
+st_lottie(lottie_rocket, height=150, key="rocket")
+st.title("🚀 Line Sachet Monitor")
+st.subheader("Sistem Monitoring Produksi")
+
+# 4. Form Input
 with st.container():
     col1, col2 = st.columns(2)
     with col1:
-        op_name = st.text_input("Operator")
-        jam_mulai = st.text_input("Jam Mulai", value="07:00")
+        op_name = st.text_input("Nama Operator")
+        jam_mulai = st.text_input("Jam Mulai (HH:MM)", value="07:00")
     with col2:
         shift = st.selectbox("Shift", ["Shift 1", "Shift 2", "Shift 3"])
         durasi = st.radio("Durasi (Min)", [40, 50], horizontal=True)
 
-# Tombol Tambah
-if st.button("➕ TAMBAH LOG", use_container_width=True, type="primary"):
+# 5. Logika Tambah Data
+if st.button("➕ TAMBAH DATA PRODUKSI", use_container_width=True, type="primary"):
     try:
         t_start = datetime.strptime(jam_mulai, "%H:%M")
         t1 = t_start + timedelta(minutes=3)
@@ -36,19 +49,20 @@ if st.button("➕ TAMBAH LOG", use_container_width=True, type="primary"):
             "Proses": f"{t1.strftime('%H:%M')} - {t2.strftime('%H:%M')}",
             "Hasil": f"{t_start.strftime('%H:%M')} - {t_end.strftime('%H:%M')}"
         })
-        st.rerun() # Refresh untuk update tabel
-    except: st.error("Periksa kembali format jam (HH:MM)")
+        st.rerun()
+    except:
+        st.error("Format jam salah! Gunakan HH:MM")
 
-# Tampilan Tabel yang bersih
+# 6. Tampilan Data & Download
 if 'log_data' in st.session_state and st.session_state.log_data:
     st.divider()
+    st.write("### 📋 Data Log Produksi")
     df = pd.DataFrame(st.session_state.log_data)
     st.dataframe(df, use_container_width=True)
     
-    # Tombol Download
     csv = df.to_csv(index=False).encode('utf-8')
-    st.download_button("💾 DOWNLOAD EXCEL", csv, "log_produksi.csv", "text/csv", use_container_width=True)
+    st.download_button("💾 EXPORT KE EXCEL", csv, "log_produksi.csv", "text/csv", use_container_width=True)
     
-    if st.button("🔄 RESET"):
+    if st.button("🔄 RESET SEMUA DATA"):
         st.session_state.log_data = []
         st.rerun()
