@@ -1,0 +1,16 @@
+.gitignore
+# Folder Pydroid / Python
+__pycache__/
+*.pyc
+
+# Data Produksi (Jangan diupload ke GitHub!)
+*.xlsx
+*.xls
+
+# Konfigurasi Lokal
+.env
+.buildozer/
+bin/
+
+# File Sistem
+.DS_Store
