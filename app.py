@@ -28,7 +28,7 @@ if st.button("➕ TAMBAH LOG"):
         st.session_state.log_data.append({
             "Operator": op_name,
             "Shift": shift,
-            "3m + 12m": f"{t_start.strftime('%H:%M')} - {t3.strftime('%H:%M')}",
+            "3m + 12m": f"{t_start.strftime('%H:%M')}→{t1.strftime('%H:%M')}→{t2.strftime('%H:%M')}→{t3.strftime('%H:%M')}",
             "Proses": f"{t1.strftime('%H:%M')} - {t2.strftime('%H:%M')}",
             "Hasil": f"{t_start.strftime('%H:%M')} - {t_end.strftime('%H:%M')}"
         })
