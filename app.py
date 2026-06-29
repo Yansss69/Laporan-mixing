@@ -2,35 +2,24 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 
-# Pengaturan Halaman
-st.set_page_config(page_title="Line Sachet Monitor", layout="wide")
+# Konfigurasi halaman yang simpel dan elegan
+st.set_page_config(page_title="Line Sachet Monitor", page_icon="🏭", layout="centered")
 
-# Styling CSS untuk Tema Biru & Abu-abu
-st.markdown("""
-    <style>
-    .stApp { background-color: #f0f2f6; }
-    h3 { color: #1e3a8a; }
-    div.stButton > button:first-child { 
-        background-color: #1e3a8a; color: white; border-radius: 10px; 
-    }
-    div.stDownloadButton > button { 
-        background-color: #4b5563; color: white; border-radius: 10px; 
-    }
-    </style>
-""", unsafe_allow_html=True)
+st.title("🏭 Line Sachet Monitor")
+st.subheader("Production Data Entry")
 
-st.markdown("### 🏭 Line Sachet Production Monitor")
+# Layout Input dengan kolom agar lebih rapi di layar HP
+with st.container():
+    col1, col2 = st.columns(2)
+    with col1:
+        op_name = st.text_input("Operator")
+        jam_mulai = st.text_input("Jam Mulai", value="07:00")
+    with col2:
+        shift = st.selectbox("Shift", ["Shift 1", "Shift 2", "Shift 3"])
+        durasi = st.radio("Durasi (Min)", [40, 50], horizontal=True)
 
-# Menggunakan kolom agar form lebih ringkas
-col1, col2 = st.columns(2)
-with col1:
-    op_name = st.text_input("Nama Operator")
-    jam_mulai = st.text_input("Jam Mulai (HH:MM)", value="07:00")
-with col2:
-    shift = st.selectbox("Shift", ["Shift 1 (Pagi)", "Shift 2 (Siang)", "Shift 3 (Malam)"])
-    durasi = st.radio("Durasi (Menit)", [40, 50], horizontal=True)
-
-if st.button("➕ TAMBAH LOG", use_container_width=True):
+# Tombol Tambah
+if st.button("➕ TAMBAH LOG", use_container_width=True, type="primary"):
     try:
         t_start = datetime.strptime(jam_mulai, "%H:%M")
         t1 = t_start + timedelta(minutes=3)
@@ -43,22 +32,23 @@ if st.button("➕ TAMBAH LOG", use_container_width=True):
         if 'log_data' not in st.session_state: st.session_state.log_data = []
         st.session_state.log_data.append({
             "Operator": op_name, "Shift": shift,
-            "3m + 12m": detail_waktu,
+            "Timeline": detail_waktu,
             "Proses": f"{t1.strftime('%H:%M')} - {t2.strftime('%H:%M')}",
             "Hasil": f"{t_start.strftime('%H:%M')} - {t_end.strftime('%H:%M')}"
         })
-    except: st.error("Format jam salah!")
+        st.rerun() # Refresh untuk update tabel
+    except: st.error("Periksa kembali format jam (HH:MM)")
 
-# Tampilan tabel
+# Tampilan Tabel yang bersih
 if 'log_data' in st.session_state and st.session_state.log_data:
-    df = pd.DataFrame(st.session_state.log_data)
     st.divider()
-    st.write("### Data Log Hari Ini")
+    df = pd.DataFrame(st.session_state.log_data)
     st.dataframe(df, use_container_width=True)
     
+    # Tombol Download
     csv = df.to_csv(index=False).encode('utf-8')
-    st.download_button("💾 EXPORT KE EXCEL", csv, "log_produksi.csv", "text/csv", use_container_width=True)
-
-if st.button("🔄 RESET SEMUA", use_container_width=True):
-    st.session_state.log_data = []
-    st.rerun()
+    st.download_button("💾 DOWNLOAD EXCEL", csv, "log_produksi.csv", "text/csv", use_container_width=True)
+    
+    if st.button("🔄 RESET"):
+        st.session_state.log_data = []
+        st.rerun()
