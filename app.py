@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 # Konfigurasi halaman yang simpel dan elegan
 st.set_page_config(page_title="Line Sachet Monitor", page_icon="🏭", layout="centered")
 
-st.title("🏭 Line Sachet Monitor")
+st.title("🚀 Line Mixing Sachet")
 st.subheader("Production Data Entry")
 
 # Layout Input dengan kolom agar lebih rapi di layar HP
